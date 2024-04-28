@@ -92,6 +92,8 @@ namespace DemoAPI.Controllers
                 {
                     return BadRequest("Invalid request");
                 }
+                // Find the document in MongoDB using the specified ID
+                var collectionItem = await _collection.Find(c => c.Id == id).FirstOrDefaultAsync();
 
                 // Create an updated Collection object based on the incoming model
                 var updatedItem = new Collection
@@ -99,6 +101,7 @@ namespace DemoAPI.Controllers
                     Id = id,
                     Title = updatedCollection.Title,
                     Description = updatedCollection.Description,
+                    CreatedAt = collectionItem.CreatedAt,
                     UpdatedAt = DateTime.UtcNow,
                     Image = updatedCollection.Image,
                     Link = updatedCollection.Link
