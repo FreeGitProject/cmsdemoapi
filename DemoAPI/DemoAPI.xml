@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DemoAPI</name>
+    </assembly>
+    <members>
+        <member name="M:DemoAPI.Controllers.WeatherForecastController.Get">
+            <summary>
+            WeatherForecast
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:DemoAPI.WeatherForecast">
+            <summary>
+            This is WeatherForecast
+            </summary>
+        </member>
+        <member name="P:DemoAPI.WeatherForecast.Date">
+            <summary>
+            Temperature Date
+            </summary>
+        </member>
+        <member name="P:DemoAPI.WeatherForecast.TemperatureC">
+            <summary>
+            Temperature TemperatureC
+            </summary>
+        </member>
+        <member name="P:DemoAPI.WeatherForecast.TemperatureF">
+            <summary>
+            Temperature TemperatureF
+            </summary>
+        </member>
+        <member name="P:DemoAPI.WeatherForecast.Summary">
+            <summary>
+            Temperature Summary
+            </summary>
+        </member>
+    </members>
+</doc>
