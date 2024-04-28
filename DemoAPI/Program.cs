@@ -13,7 +13,7 @@ var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").B
 
 // Retrieve MongoDB connection string and database name
 string connectionString = configuration["DatabaseConfigurations:ConnectionString"];
-string databaseName = configuration["DatabaseConfigurations:CmsMasterDatabaseName"];
+string databaseName = configuration["DatabaseConfigurations:CmsDatabaseName"];
 
 MongoClientSettings settings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 IMongoClient mongoClient = new MongoClient(settings);
