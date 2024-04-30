@@ -18,6 +18,7 @@ namespace DemoAPI.Controllers
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
             _logger = logger;
+            _logger.LogInformation("WeatherForecast controller called ");
         }
         /// <summary>
         /// WeatherForecast
@@ -27,6 +28,7 @@ namespace DemoAPI.Controllers
       //  [Route("all")]
         public IEnumerable<WeatherForecast> Get()
         {
+            _logger.LogInformation("WeatherForecast get method Starting.");
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
