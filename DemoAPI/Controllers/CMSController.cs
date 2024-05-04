@@ -6,6 +6,8 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using DemoAPI.Entities;
+using System.Net;
+using DemoAPI.Models.Collections;
 
 namespace DemoAPI.Controllers
 {
@@ -58,22 +60,61 @@ namespace DemoAPI.Controllers
         }
 
         /// <summary>
-        /// Get all collections
+        /// 
         /// </summary>
+        /// <param name="currentPage"></param>
+        /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet("collections")]
-        public async Task<IActionResult> GetAllCollections()
+        public async Task<IActionResult> GetAllCollections(string searchTitle = "", int currentPage = 1, int pageSize = 10)
         {
             try
             {
-                // Retrieve all collections from MongoDB
-                var collections = await _collection.Find(_ => true).ToListAsync();
+                // Filter definition for title-based search (case-insensitive)
+                FilterDefinition<Collection> filter = Builders<Collection>.Filter.Empty;
+                if (!string.IsNullOrWhiteSpace(searchTitle))
+                {
+                    filter = Builders<Collection>.Filter.Regex("Title", new MongoDB.Bson.BsonRegularExpression(searchTitle, "i"));
+                }
 
-                return Ok(collections);
+                // Calculate the number of records to skip based on pagination parameters
+                int skip = (currentPage - 1) * pageSize;
+
+                // Retrieve total count of filtered documents in the collection
+                long totalRecords = await _collection.CountDocumentsAsync(filter);
+
+                // Retrieve paginated collections from MongoDB with search and pagination
+                List<Collection> collections = await _collection
+                    .Find(filter)
+                    .SortByDescending(c => c.CreatedAt) // Example sorting by createdAt, adjust as needed
+                    .Skip(skip)
+                    .Limit(pageSize)
+                    .ToListAsync();
+
+                // Create a paginated response model
+                var response = new ResponseModelPaginated<List<Collection>>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Status = "Success",
+                    Message = "Collections retrieved successfully",
+                    Result = collections,
+                    TotalRecords = (int)totalRecords,
+                    CurrentPage = currentPage,
+                    PageSize = pageSize
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Handle any exceptions and return an error response
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseModel<object>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Status = "Error",
+                    Error = "Internal server error",
+                    Message = ex.Message
+                });
             }
         }
 
