@@ -5,8 +5,11 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using System.Reflection;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
 // Add configuration for accessing appsettings.json
 var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
@@ -88,7 +91,7 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/swagger/v2/swagger.json", "API V2");
     });
 }
-
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
