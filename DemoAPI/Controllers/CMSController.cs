@@ -38,7 +38,8 @@ namespace DemoAPI.Controllers
                 {
                     return BadRequest("Invalid CMS item data");
                 }
-                var newcollection = new Collection
+
+                var newCollection = new Collection
                 {
                     Title = collection.Title,
                     Description = collection.Description,
@@ -48,14 +49,32 @@ namespace DemoAPI.Controllers
                     Link = collection.Link
                 };
 
-                // Insert the CMSItem into MongoDB
-                await _collection.InsertOneAsync(newcollection);
+                // Insert the new Collection into MongoDB
+                await _collection.InsertOneAsync(newCollection);
 
-                return Ok(newcollection);
+                // Prepare the response model
+                var response = new ResponseModel<Collection>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Status = "Success",
+                    Message = "Collection created successfully",
+                    Result = newCollection
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Handle any exceptions and return an error response
+                var errorResponse = new ResponseModel<object>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Status = "Error",
+                    Error = "Internal server error",
+                    Message = ex.Message
+                };
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
 
@@ -133,8 +152,20 @@ namespace DemoAPI.Controllers
                 {
                     return BadRequest("Invalid request");
                 }
-                // Find the document in MongoDB using the specified ID
+
+                // Find the existing document in MongoDB using the specified ID
                 var collectionItem = await _collection.Find(c => c.Id == id).FirstOrDefaultAsync();
+
+                if (collectionItem == null)
+                {
+                    return NotFound(new ResponseModel<object>
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Status = "Error",
+                        Error = "Not Found",
+                        Message = "Collection with specified ID not found"
+                    });
+                }
 
                 // Create an updated Collection object based on the incoming model
                 var updatedItem = new Collection
@@ -153,16 +184,40 @@ namespace DemoAPI.Controllers
 
                 if (result.ModifiedCount > 0)
                 {
-                    return Ok(updatedItem);
+                    // Prepare the response
+                    var response = new ResponseModel<Collection>
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Status = "Success",
+                        Message = "Collection updated successfully",
+                        Result = updatedItem
+                    };
+
+                    return Ok(response);
                 }
                 else
                 {
-                    return NotFound(); // Document with specified ID not found
+                    return NotFound(new ResponseModel<object>
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Status = "Error",
+                        Error = "Not Found",
+                        Message = "Collection with specified ID not found"
+                    });
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Handle any exceptions and return an error response
+                var errorResponse = new ResponseModel<object>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Status = "Error",
+                    Error = "Internal server error",
+                    Message = ex.Message
+                };
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
 
@@ -186,16 +241,40 @@ namespace DemoAPI.Controllers
 
                 if (result.DeletedCount > 0)
                 {
-                    return Ok(); // Document successfully deleted
+                    // Document successfully deleted
+                    var response = new ResponseModel<object>
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Status = "Success",
+                        Message = "Collection deleted successfully"
+                    };
+
+                    return Ok(response);
                 }
                 else
                 {
-                    return NotFound(); // Document with specified ID not found
+                    // Document with specified ID not found
+                    return NotFound(new ResponseModel<object>
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Status = "Error",
+                        Error = "Not Found",
+                        Message = "Collection with specified ID not found"
+                    });
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Handle any exceptions and return an error response
+                var errorResponse = new ResponseModel<object>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Status = "Error",
+                    Error = "Internal server error",
+                    Message = ex.Message
+                };
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
 
@@ -219,16 +298,41 @@ namespace DemoAPI.Controllers
 
                 if (collectionItem != null)
                 {
-                    return Ok(collectionItem); // Return the document if found
+                    // Document found, prepare the response
+                    var response = new ResponseModel<Collection>
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Status = "Success",
+                        Message = "Collection retrieved successfully",
+                        Result = collectionItem
+                    };
+
+                    return Ok(response);
                 }
                 else
                 {
-                    return NotFound(); // Document with specified ID not found
+                    // Document with specified ID not found
+                    return NotFound(new ResponseModel<object>
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Status = "Error",
+                        Error = "Not Found",
+                        Message = "Collection with specified ID not found"
+                    });
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Handle any exceptions and return an error response
+                var errorResponse = new ResponseModel<object>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Status = "Error",
+                    Error = "Internal server error",
+                    Message = ex.Message
+                };
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
 
@@ -244,11 +348,29 @@ namespace DemoAPI.Controllers
                 // Delete all collections from MongoDB
                 var result = await _collection.DeleteManyAsync(Builders<Collection>.Filter.Empty);
 
-                return Ok(result.DeletedCount); // Return the number of deleted documents
+                // Prepare the response
+                var response = new ResponseModel<long>
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Status = "Success",
+                    Message = $"Deleted {result.DeletedCount} collections",
+                    Result = result.DeletedCount
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Handle any exceptions and return an error response
+                var errorResponse = new ResponseModel<object>
+                {
+                    StatusCode = HttpStatusCode.InternalServerError,
+                    Status = "Error",
+                    Error = "Internal server error",
+                    Message = ex.Message
+                };
+
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
     }
