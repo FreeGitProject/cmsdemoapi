@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using DemoAPI.Entities;
 using System.Net;
 using DemoAPI.Models.Collections;
+using Newtonsoft.Json;
 
 
 namespace DemoAPI.Controllers
@@ -18,11 +19,13 @@ namespace DemoAPI.Controllers
     public class CMSController : ControllerBase
     {
         private readonly IMongoCollection<Collection> _collection;
+        private readonly ILogger<CMSController> _logger;
 
-        public CMSController(IMongoClient client)
+        public CMSController(IMongoClient client, ILogger<CMSController> logger)
         {
             var database = client.GetDatabase("CMSDemo");
             _collection = database.GetCollection<Collection>("Collection");
+            _logger = logger;
         }
 
         /// <summary>
@@ -33,6 +36,7 @@ namespace DemoAPI.Controllers
         [HttpPost("collection")]
         public async Task<IActionResult> Create(CollectionModel collection)
         {
+            _logger.LogInformation("Create collection : {@collection}", JsonConvert.SerializeObject(collection));
             try
             {
                 if (collection == null)
