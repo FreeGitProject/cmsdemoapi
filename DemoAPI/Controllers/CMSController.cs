@@ -9,6 +9,7 @@ using DemoAPI.Entities;
 using System.Net;
 using DemoAPI.Models.Collections;
 using Newtonsoft.Json;
+using OnAuthenticationTest.Controller;
 
 
 namespace DemoAPI.Controllers
@@ -16,7 +17,7 @@ namespace DemoAPI.Controllers
     [ApiVersion("1")]
     [Route("api/v{v:apiVersion}/CMS")]
     [ApiController]
-    public class CMSController : ControllerBase
+    public class CMSController : ApiBaseController
     {
         private readonly IMongoCollection<Collection> _collection;
         private readonly ILogger<CMSController> _logger;
